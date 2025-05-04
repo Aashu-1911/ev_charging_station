@@ -1,0 +1,338 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>MIT AOE EV Charging Portal</title>
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600&display=swap" rel="stylesheet">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Poppins', sans-serif;
+        }
+
+        body {
+            background: #f8f9fa;
+        }
+
+        .navbar {
+            background: #2c3e50;
+            padding: 1rem 2rem;
+            color: white;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 2rem;
+        }
+
+        .home-page {
+            text-align: center;
+            padding: 4rem 0;
+        }
+
+        .college-info {
+            background: white;
+            padding: 2rem;
+            border-radius: 15px;
+            box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+            margin: 2rem 0;
+        }
+
+        .hero-section {
+            background: linear-gradient(rgba(0,0,0,0.7), rgba(0,0,0,0.7)),
+                        url('https://images.unsplash.com/photo-1523580846011-d3a5bc25702b?ixlib=rb-1.2.1&auto=format&fit=crop&w=1950&q=80');
+            background-size: cover;
+            color: white;
+            padding: 6rem 2rem;
+            border-radius: 15px;
+            margin-bottom: 2rem;
+        }
+
+        .cta-button {
+            background: #27ae60;
+            color: white;
+            padding: 1rem 2rem;
+            border: none;
+            border-radius: 30px;
+            font-size: 1.1rem;
+            cursor: pointer;
+            transition: transform 0.3s ease;
+            margin-top: 2rem;
+        }
+
+        .cta-button:hover {
+            transform: translateY(-3px);
+            background: #219a52;
+        }
+
+        .slot-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 1.5rem;
+            margin: 2rem 0;
+        }
+
+        .slot-card {
+            background: white;
+            padding: 1.5rem;
+            border-radius: 12px;
+            text-align: center;
+            cursor: pointer;
+            transition: transform 0.3s ease;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+        }
+
+        .slot-card.booked {
+            background: #e74c3c;
+            color: white;
+            cursor: not-allowed;
+        }
+
+        .slot-card.available:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 4px 8px rgba(0,0,0,0.15);
+        }
+
+        .booking-form {
+            background: white;
+            padding: 2rem;
+            border-radius: 15px;
+            box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+            max-width: 500px;
+            margin: 2rem auto;
+        }
+
+        .form-input {
+            width: 100%;
+            padding: 0.8rem;
+            margin: 0.5rem 0;
+            border: 1px solid #ddd;
+            border-radius: 8px;
+            font-size: 1rem;
+        }
+
+        .ticket {
+            background: white;
+            padding: 2rem;
+            border-radius: 15px;
+            box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+            margin: 2rem auto;
+            max-width: 500px;
+            display: none;
+        }
+
+        .ticket h2 {
+            color: #27ae60;
+            margin-bottom: 1rem;
+        }
+
+        .page {
+            display: none;
+        }
+
+        .active-page {
+            display: block;
+        }
+
+        .highlight-ticket {
+            animation: ticketHighlight 1s ease;
+        }
+
+        @keyframes ticketHighlight {
+            0% { transform: scale(1); }
+            50% { transform: scale(1.02); }
+            100% { transform: scale(1); }
+        }
+
+        .my-bookings {
+            margin: 2rem 0;
+            background: white;
+            padding: 2rem;
+            border-radius: 15px;
+            box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+        }
+
+        @media (max-width: 768px) {
+            .container {
+                padding: 1rem;
+            }
+            
+            .slot-grid {
+                grid-template-columns: 1fr;
+            }
+        }
+    </style>
+</head>
+<body>
+    <nav class="navbar">
+        <img style="height: 50px;" src="./logo mit.jpg" alt="">
+    </nav>
+
+    <div class="container">
+        <!-- Home Page -->
+        <div class="page active-page" id="homePage">
+            <div class="hero-section">
+                <h1>Welcome to MIT AOE EV Charging Station</h1>
+                <p>Book your charging slot efficiently and sustainably</p>
+                <button class="cta-button" onclick="showPage('bookingPage')">Book Slot Now</button>
+            </div>
+
+            <div class="college-info">
+                <h2>About MIT Academy of Engineering</h2>
+                <p>MITAOE is one of the premier engineering institutions in Maharashtra. 
+                    Committed to excellence in technical education and research, we pioneer in sustainable 
+                    technologies and eco-friendly campus initiatives.</p>
+                <img src="./MITAOE-logo.webp" alt="MIT AOE Logo" style="height: 80px; margin-top: 1rem;">
+            </div>
+        </div>
+
+        <!-- Booking Page -->
+        <div class="page" id="bookingPage">
+            <button class="cta-button" style="background: #3498db;" onclick="showPage('homePage')">← Back to Home</button>
+            <h1 style="margin: 2rem 0;">EV Charging Slots</h1>
+            
+            <div class="slot-grid" id="slotGrid"></div>
+
+            <div class="booking-form" id="bookingForm">
+                <h2>Book Your Slot</h2>
+                <input type="text" class="form-input" id="userName" placeholder="Full Name">
+                <input type="email" class="form-input" id="userEmail" placeholder="College Email">
+                <input type="text" class="form-input" id="vehicleNumber" placeholder="Vehicle Number">
+                <button class="cta-button" onclick="confirmBooking()">Confirm Booking</button>
+            </div>
+
+            <div class="ticket" id="ticket">
+                <h2>Booking Confirmed! 🎉</h2>
+                <p><strong>Slot Time:</strong> <span id="ticketTime"></span></p>
+                <p><strong>Name:</strong> <span id="ticketName"></span></p>
+                <p><strong>Email:</strong> <span id="ticketEmail"></span></p>
+                <p><strong>Vehicle Number:</strong> <span id="ticketVehicle"></span></p>
+                <button class="cta-button" style="margin-top: 1rem;" onclick="showPage('bookingPage')">Book Another Slot</button>
+            </div>
+
+            <div class="my-bookings">
+                <h2>My Bookings</h2>
+                <div id="bookingsList"></div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Page Navigation
+        function showPage(pageId) {
+            document.querySelectorAll('.page').forEach(page => {
+                page.classList.remove('active-page');
+            });
+            document.getElementById(pageId).classList.add('active-page');
+            if(pageId === 'bookingPage') {
+                initSlots();
+                updateBookingsList();
+            }
+        }
+
+        // Slot Management System
+        let slots = JSON.parse(localStorage.getItem('evSlots')) || [
+            { time: '8:00 - 9:00 AM', booked: false, details: null },
+            { time: '9:00 - 10:00 AM', booked: false, details: null },
+            { time: '10:00 - 11:00 AM', booked: false, details: null },
+            { time: '11:00 - 12:00 PM', booked: false, details: null },
+            { time: '12:00 - 1:00 PM', booked: false, details: null },
+            { time: '1:00 - 2:00 PM', booked: false, details: null },
+            { time: '2:00 - 3:00 PM', booked: false, details: null },
+            { time: '3:00 - 4:00 PM', booked: false, details: null },
+            { time: '4:00 - 5:00 PM', booked: false, details: null },
+            { time: '5:00 - 6:00 PM', booked: false, details: null }
+        ];
+
+        let selectedSlot = null;
+
+        function initSlots() {
+            const slotGrid = document.getElementById('slotGrid');
+            slotGrid.innerHTML = '';
+            
+            slots.forEach((slot, index) => {
+                const card = document.createElement('div');
+                card.className = `slot-card ${slot.booked ? 'booked' : 'available'}`;
+                card.innerHTML = `
+                    <h3>${slot.time}</h3>
+                    <p>${slot.booked ? 'Booked' : 'Available'}</p>
+                `;
+                
+                if (!slot.booked) {
+                    card.onclick = () => selectSlot(index);
+                }
+                
+                slotGrid.appendChild(card);
+            });
+        }
+
+        function selectSlot(index) {
+            selectedSlot = index;
+            document.getElementById('bookingForm').scrollIntoView({
+                behavior: 'smooth'
+            });
+        }
+
+        function confirmBooking() {
+            const name = document.getElementById('userName').value;
+            const email = document.getElementById('userEmail').value;
+            const vehicle = document.getElementById('vehicleNumber').value;
+
+            if (name && email && vehicle) {
+                slots[selectedSlot].booked = true;
+                slots[selectedSlot].details = { name, email, vehicle };
+                localStorage.setItem('evSlots', JSON.stringify(slots));
+
+                // Show ticket
+                const ticket = document.getElementById('ticket');
+                ticket.style.display = 'block';
+                ticket.classList.add('highlight-ticket');
+                
+                // Update ticket details
+                document.getElementById('ticketTime').textContent = slots[selectedSlot].time;
+                document.getElementById('ticketName').textContent = name;
+                document.getElementById('ticketEmail').textContent = email;
+                document.getElementById('ticketVehicle').textContent = vehicle;
+
+                // Reset form and update UI
+                document.getElementById('bookingForm').reset();
+                ticket.scrollIntoView({ behavior: 'smooth' });
+                updateBookingsList();
+                initSlots();
+            } else {
+                alert('Please fill all required fields!');
+            }
+        }
+
+        function updateBookingsList() {
+            const bookingsList = document.getElementById('bookingsList');
+            bookingsList.innerHTML = '';
+            
+            slots.forEach(slot => {
+                if (slot.booked && slot.details) {
+                    const booking = document.createElement('div');
+                    booking.className = 'ticket';
+                    booking.innerHTML = `
+                        <p><strong>Slot Time:</strong> ${slot.time}</p>
+                        <p><strong>Name:</strong> ${slot.details.name}</p>
+                        <p><strong>Vehicle:</strong> ${slot.details.vehicle}</p>
+                        <hr>
+                    `;
+                    bookingsList.appendChild(booking);
+                }
+            });
+        }
+
+        // Initialize on load
+        window.onload = () => {
+            initSlots();
+            updateBookingsList();
+        };
+    </script>
+</body>
+</html>
