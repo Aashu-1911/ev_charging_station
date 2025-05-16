@@ -107,6 +107,16 @@
             margin: 2rem auto;
         }
 
+        .payment-form {
+            background: white;
+            padding: 2rem;
+            border-radius: 15px;
+            box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+            max-width: 500px;
+            margin: 2rem auto;
+            display: none;
+        }
+
         .form-input {
             width: 100%;
             padding: 0.8rem;
@@ -114,6 +124,25 @@
             border: 1px solid #ddd;
             border-radius: 8px;
             font-size: 1rem;
+        }
+
+        .payment-details {
+            display: grid;
+            grid-template-columns: 2fr 1fr;
+            gap: 1rem;
+            margin: 1rem 0;
+        }
+
+        .pay-button {
+            background: #27ae60;
+            color: white;
+            padding: 1rem 2rem;
+            border: none;
+            border-radius: 8px;
+            font-size: 1.1rem;
+            cursor: pointer;
+            width: 100%;
+            margin-top: 1rem;
         }
 
         .ticket {
@@ -203,7 +232,17 @@
                 <input type="text" class="form-input" id="userName" placeholder="Full Name">
                 <input type="email" class="form-input" id="userEmail" placeholder="College Email">
                 <input type="text" class="form-input" id="vehicleNumber" placeholder="Vehicle Number">
-                <button class="cta-button" onclick="confirmBooking()">Confirm Booking</button>
+                <button class="cta-button" onclick="showPaymentForm()">Proceed to Payment</button>
+            </div>
+
+            <div class="payment-form" id="paymentForm">
+                <h2>Payment Details</h2>
+                <input type="text" class="form-input" id="cardNumber" placeholder="Card Number">
+                <div class="payment-details">
+                    <input type="text" class="form-input" id="expiryDate" placeholder="MM/YY">
+                    <input type="text" class="form-input" id="cvv" placeholder="CVV">
+                </div>
+                <button class="pay-button" onclick="processPayment()">Pay Now</button>
             </div>
 
             <div class="ticket" id="ticket">
@@ -232,6 +271,7 @@
             if(pageId === 'bookingPage') {
                 initSlots();
                 updateBookingsList();
+                resetForms();
             }
         }
 
@@ -278,35 +318,64 @@
             });
         }
 
-        function confirmBooking() {
+        function showPaymentForm() {
             const name = document.getElementById('userName').value;
             const email = document.getElementById('userEmail').value;
             const vehicle = document.getElementById('vehicleNumber').value;
 
             if (name && email && vehicle) {
-                slots[selectedSlot].booked = true;
-                slots[selectedSlot].details = { name, email, vehicle };
-                localStorage.setItem('evSlots', JSON.stringify(slots));
-
-                // Show ticket
-                const ticket = document.getElementById('ticket');
-                ticket.style.display = 'block';
-                ticket.classList.add('highlight-ticket');
-                
-                // Update ticket details
-                document.getElementById('ticketTime').textContent = slots[selectedSlot].time;
-                document.getElementById('ticketName').textContent = name;
-                document.getElementById('ticketEmail').textContent = email;
-                document.getElementById('ticketVehicle').textContent = vehicle;
-
-                // Reset form and update UI
-                document.getElementById('bookingForm').reset();
-                ticket.scrollIntoView({ behavior: 'smooth' });
-                updateBookingsList();
-                initSlots();
+                document.getElementById('bookingForm').style.display = 'none';
+                document.getElementById('paymentForm').style.display = 'block';
+                document.getElementById('paymentForm').scrollIntoView({ behavior: 'smooth' });
             } else {
-                alert('Please fill all required fields!');
+                alert('Please fill all required fields before proceeding to payment!');
             }
+        }
+
+        function processPayment() {
+            const cardNumber = document.getElementById('cardNumber').value;
+            const expiryDate = document.getElementById('expiryDate').value;
+            const cvv = document.getElementById('cvv').value;
+
+            if (!cardNumber || !expiryDate || !cvv) {
+                alert('Please fill all payment details!');
+                return;
+            }
+
+            completeBooking();
+            document.getElementById('paymentForm').style.display = 'none';
+        }
+
+        function completeBooking() {
+            const name = document.getElementById('userName').value;
+            const email = document.getElementById('userEmail').value;
+            const vehicle = document.getElementById('vehicleNumber').value;
+
+            slots[selectedSlot].booked = true;
+            slots[selectedSlot].details = { name, email, vehicle };
+            localStorage.setItem('evSlots', JSON.stringify(slots));
+
+            const ticket = document.getElementById('ticket');
+            ticket.style.display = 'block';
+            ticket.classList.add('highlight-ticket');
+            
+            document.getElementById('ticketTime').textContent = slots[selectedSlot].time;
+            document.getElementById('ticketName').textContent = name;
+            document.getElementById('ticketEmail').textContent = email;
+            document.getElementById('ticketVehicle').textContent = vehicle;
+
+            resetForms();
+            ticket.scrollIntoView({ behavior: 'smooth' });
+            updateBookingsList();
+            initSlots();
+        }
+
+        function resetForms() {
+            document.getElementById('bookingForm').reset();
+            document.getElementById('paymentForm').reset();
+            document.getElementById('bookingForm').style.display = 'block';
+            document.getElementById('paymentForm').style.display = 'none';
+            document.getElementById('ticket').style.display = 'none';
         }
 
         function updateBookingsList() {
@@ -328,7 +397,6 @@
             });
         }
 
-        // Initialize on load
         window.onload = () => {
             initSlots();
             updateBookingsList();
